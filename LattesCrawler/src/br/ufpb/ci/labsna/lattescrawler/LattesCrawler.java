@@ -158,6 +158,9 @@ public class LattesCrawler {
 					System.out.println( "\t\t conferencias " + l.getArtigosConfer());
 					System.out.println( "\t\t orientacoesMestrado " + l.getOrientaMestrado());
 					System.out.println( "\t\t orientacoesDoutorado " + l.getOrientaDoutorado());
+					System.out.println( "\t\t bancasMestrado " + l.getBancasMestrado());
+					System.out.println( "\t\t bancasDoutorado " + l.getBancasDoutorado());
+					
 					
 					if(seed.contains(l.getLattesID()))
 						System.out.println( "\t\t seed 1");

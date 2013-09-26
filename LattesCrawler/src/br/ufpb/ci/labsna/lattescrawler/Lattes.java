@@ -32,7 +32,9 @@ public class Lattes {
 	private int artigosConfer;
 	private int orientaMestrado;
 	private int orientaDoutorado;
-
+	private int bancasMestrado;
+	private int bancasDoutorado;
+	
 	public Lattes(String lattesID) {
 		this.lattesID = lattesID;
 		connections = new Hashtable<String,Integer>();
@@ -40,6 +42,8 @@ public class Lattes {
 		artigosConfer=0;
 		orientaMestrado=0;
 		orientaDoutorado=0;
+		bancasDoutorado=0;
+		bancasMestrado=0;
 		
 	}
 
@@ -50,6 +54,22 @@ public class Lattes {
 		
 		i = i + 1;		
 		connections.put(otherLattesID,i);
+	}
+
+	public int getBancasMestrado() {
+		return bancasMestrado;
+	}
+
+	public void setBancasMestrado(int bancasMestrado) {
+		this.bancasMestrado = bancasMestrado;
+	}
+
+	public int getBancasDoutorado() {
+		return bancasDoutorado;
+	}
+
+	public void setBancasDoutorado(int bancasDoutorado) {
+		this.bancasDoutorado = bancasDoutorado;
 	}
 
 	public void setName(String name) {
@@ -195,6 +215,53 @@ public class Lattes {
 				}while(true);
 			}
 			setOrientaDoutorado(numOrientD);
+			
+			/* participações em bancas de doutorado */
+			
+			divs=doc.select("a[name=ParticipacaoBancasTrabalho]~div.cita-artigos:has(b:containsOwn(Mestrado))");
+			int numBancasM=0;//
+			if(!divs.isEmpty()){
+				Element divBancaM= divs.get(0);
+				do{
+					divBancaM=divBancaM.nextElementSibling();
+					if(divBancaM!=null){
+						String div_class = divBancaM.hasAttr("class")? divBancaM.attr("class"):""; 
+						
+						if(div_class.equals("cita-artigos")){
+							break; //acabou as orientacoes 
+						}else
+							if(div_class.equals("layout-cell layout-cell-11")){
+								numBancasM++;
+							}
+					}else
+						break;
+				}while(true);
+			}
+			setBancasMestrado(numBancasM);
+			
+			/* participações em bancas de doutorado */
+			
+			divs=doc.select("a[name=ParticipacaoBancasTrabalho]~div.cita-artigos:has(b:containsOwn(Teses de doutorado))");
+			int numBancasD=0;//
+			if(!divs.isEmpty()){
+				Element divBancaD= divs.get(0);
+				do{
+					divBancaD=divBancaD.nextElementSibling();
+					if(divBancaD!=null){
+						String div_class = divBancaD.hasAttr("class")? divBancaD.attr("class"):""; 
+						
+						if(div_class.equals("cita-artigos")){
+							break; //acabou as orientacoes 
+						}else
+							if(div_class.equals("layout-cell layout-cell-11")){
+								numBancasD++;
+							}
+					}else
+						break;
+				}while(true);
+			}
+			setBancasDoutorado(numBancasD);
+			
 			
 			
 			//adiciona conexoes 
