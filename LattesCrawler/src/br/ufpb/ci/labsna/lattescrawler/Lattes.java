@@ -146,7 +146,7 @@ public class Lattes {
 				int numArtigosP=0;
 				for(int i = 0;i<divs.size();i++){
 					int year=Integer.parseInt(divs.get(i).text());
-					if(maxYear<=maxYear)
+					if(year<=maxYear)
 						numArtigosP++;
 				}				
 				setArtigosPeriod(numArtigosP);
