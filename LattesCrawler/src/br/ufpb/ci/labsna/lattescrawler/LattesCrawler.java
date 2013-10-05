@@ -53,7 +53,7 @@ public class LattesCrawler {
 	/*
 	 * Obtem os cvs
 	 */
-	public Map<String,Lattes> crawl(int maxNivel) throws IOException {
+	public Map<String,Lattes> crawl(int maxNivel,int maxYear) throws IOException {
 		
 		ExecutorService pool = Executors.newFixedThreadPool(200);
 		
@@ -84,7 +84,7 @@ public class LattesCrawler {
 				pool = Executors.newFixedThreadPool(200);
 				
 			} else {
-				pool.execute(new Crawler(this, next));
+				pool.execute(new Crawler(this, next,maxYear));
 			}
 		}
 		
@@ -130,7 +130,7 @@ public class LattesCrawler {
 		    crawler.addSeed("@"); //Marca de fim de n�vel
 		    
 		    
-		    Map<String,Lattes> lattes = crawler.crawl(Integer.parseInt(args[1]));
+		    Map<String,Lattes> lattes = crawler.crawl(Integer.parseInt(args[1]),Integer.parseInt(args[2]));
 					 
 		    
 			System.out.println( "graph");

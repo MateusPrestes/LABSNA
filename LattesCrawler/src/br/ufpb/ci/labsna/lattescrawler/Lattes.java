@@ -116,7 +116,7 @@ public class Lattes {
 		return this.nivel;
 	}
 
-	public void extractData(LattesCrawler lc) throws IOException, LattesNotFoundException  {
+	public void extractData(LattesCrawler lc, int maxYear) throws IOException, LattesNotFoundException  {
 			
 			Document doc = Jsoup.connect("http://lattes.cnpq.br/" + lattesID).timeout(0).get();
 			
@@ -135,13 +135,27 @@ public class Lattes {
 				this.nivel =  "Bolsista " + title[1];
 			
 			
+			Elements divs; 
 			
 			/* produção em periodicos */
-			setArtigosPeriod(doc.select("div#artigos-completos div.artigo-completo").size());
+			
+			if(maxYear==0){
+				setArtigosPeriod(doc.select("div#artigos-completos div.artigo-completo").size());
+			}else{
+				divs = doc.select("div#artigos-completos  span[data-tipo-ordenacao=ano]");
+				int numArtigosP=0;
+				for(int i = 0;i<divs.size();i++){
+					int year=Integer.parseInt(divs.get(i).text());
+					if(maxYear<=maxYear)
+						numArtigosP++;
+				}				
+				setArtigosPeriod(numArtigosP);
+			}
+			
 			
 			/* produção em anais de congresso */
 			
-			Elements divs =	doc.select("div.cita-artigos:has(a[name=TrabalhosPublicadosAnaisCongresso])");
+			divs =	doc.select("div.cita-artigos:has(a[name=TrabalhosPublicadosAnaisCongresso])");
 			int numeroArtigos = 0;
 			for(int i = 0;i<divs.size();i++){
 				
@@ -156,7 +170,29 @@ public class Lattes {
 							break; //acabou uma categoria de artigos (completos, resumos, etc) 
 						}else
 							if(div_class.equals("layout-cell layout-cell-11")){
-								numeroArtigos++;
+								if(maxYear==0)
+									numeroArtigos++;
+								else{
+									String text =divPublicacao.select("div.layout-cell-pad-5").get(0).text();
+									Pattern ORIENT_REGEX = Pattern.compile("In:[\\s\\S]*?(\\d{4})");
+									Matcher matcher =  ORIENT_REGEX.matcher(text);
+									
+									while(matcher.find()){ //verifica se os anos são iguais
+										
+										ORIENT_REGEX= Pattern.compile("(\\d{4})");
+										Matcher matcherYear=ORIENT_REGEX.matcher(matcher.group());
+										matcherYear.find();
+										int year=Integer.parseInt(matcherYear.group());;
+										if(year<=maxYear){
+										  numeroArtigos++;		
+										}		
+										break;	
+										
+									
+									}//end match
+									
+									
+								}//end else
 							}
 						divPublicacao = divPublicacao.nextElementSibling();
 					  }else
@@ -185,7 +221,23 @@ public class Lattes {
 							break; //acabou as orientacoes 
 						}else
 							if(div_class.equals("layout-cell layout-cell-11")){
-								numOrientM++;
+								if(maxYear==0)
+									numOrientM++;
+								else{
+									String text =divOrientM.select("div.layout-cell-pad-5").get(0).text();
+									Pattern ORIENT_REGEX = Pattern.compile("(\\d{4})[\\s\\S]*Disserta");
+									Matcher matcher =  ORIENT_REGEX.matcher(text);
+									while(matcher.find()){
+										ORIENT_REGEX= Pattern.compile("(\\d{4})");
+										Matcher matcherYear=ORIENT_REGEX.matcher(matcher.group());
+										while(matcherYear.find()){
+											int year=Integer.parseInt(matcherYear.group());;
+											if(year<=maxYear)
+												numOrientM++;
+											}//end year
+									}//end match
+									
+								}//end else
 							}
 					}else
 						break;
@@ -208,7 +260,23 @@ public class Lattes {
 							break; //acabou as orientacoes 
 						}else
 							if(div_class.equals("layout-cell layout-cell-11")){
-								numOrientD++;
+								if(maxYear==0)
+									numOrientD++;
+								else{
+									String text =divOrientD.select("div.layout-cell-pad-5").get(0).text();
+									Pattern ORIENT_REGEX = Pattern.compile("(\\d{4})[\\s\\S]*Tese");
+									Matcher matcher =  ORIENT_REGEX.matcher(text);
+									while(matcher.find()){
+										ORIENT_REGEX= Pattern.compile("(\\d{4})");
+										Matcher matcherYear=ORIENT_REGEX.matcher(matcher.group());
+										while(matcherYear.find()){
+											int year=Integer.parseInt(matcherYear.group());;
+											if(year<=maxYear)
+												numOrientD++;
+											}//end year
+									}//end match
+									
+								}//end else
 							}
 					}else
 						break;
@@ -216,7 +284,7 @@ public class Lattes {
 			}
 			setOrientaDoutorado(numOrientD);
 			
-			/* participações em bancas de doutorado */
+			/* participações em bancas de mestrado */
 			
 			divs=doc.select("a[name=ParticipacaoBancasTrabalho]~div.cita-artigos:has(b:containsOwn(Mestrado))");
 			int numBancasM=0;//
@@ -231,7 +299,23 @@ public class Lattes {
 							break; //acabou as orientacoes 
 						}else
 							if(div_class.equals("layout-cell layout-cell-11")){
-								numBancasM++;
+								if(maxYear==0)
+									numBancasM++;
+								else{
+									String text =divBancaM.select("div.layout-cell-pad-5").get(0).text();
+									Pattern ORIENT_REGEX = Pattern.compile("(\\d{4})[\\s\\S]*Disserta");
+									Matcher matcher =  ORIENT_REGEX.matcher(text);
+									while(matcher.find()){
+										ORIENT_REGEX= Pattern.compile("(\\d{4})");
+										Matcher matcherYear=ORIENT_REGEX.matcher(matcher.group());
+										while(matcherYear.find()){
+											int year=Integer.parseInt(matcherYear.group());;
+											if(year<=maxYear)
+												numBancasM++;
+											}//end year
+									}//end match
+									
+								}
 							}
 					}else
 						break;
@@ -254,7 +338,23 @@ public class Lattes {
 							break; //acabou as orientacoes 
 						}else
 							if(div_class.equals("layout-cell layout-cell-11")){
-								numBancasD++;
+								if(maxYear==0)
+									numBancasD++;
+								else{
+									String text =divBancaD.select("div.layout-cell-pad-5").get(0).text();
+									Pattern ORIENT_REGEX = Pattern.compile("(\\d{4})[\\s\\S]*Tese");
+									Matcher matcher =  ORIENT_REGEX.matcher(text);
+									while(matcher.find()){
+										ORIENT_REGEX= Pattern.compile("(\\d{4})");
+										Matcher matcherYear=ORIENT_REGEX.matcher(matcher.group());
+										while(matcherYear.find()){
+											int year=Integer.parseInt(matcherYear.group());;
+											if(year<=maxYear)
+												numBancasD++;
+											}//end year
+									}//end match
+									
+								}//end else
 							}
 					}else
 						break;
@@ -264,16 +364,69 @@ public class Lattes {
 			
 			
 			
-			//adiciona conexoes 
-			Elements links = doc.select("a[href]");	
-			for (Element link : links) {
-			    String l = link.attr("abs:href"); 
-			    
-			    if( l.startsWith("http://lattes.cnpq.br") && !l.endsWith(lattesID) && l.substring(22).length() == 16) {
-			    	addConnection( l.substring(22)); 
-			    }
-			}
+			/*  adiciona conexoes */
 			
+			if(maxYear==0){
+				
+				Elements links = doc.select("a[href]");	
+				for (Element link : links) {
+				    String l = link.attr("abs:href"); 
+				    
+				    if( l.startsWith("http://lattes.cnpq.br") && !l.endsWith(lattesID) && l.substring(22).length() == 16) {
+				    	addConnection( l.substring(22)); 
+				    }
+				}
+			}else{
+				
+				divs = doc.select("div.layout-cell-pad-5:has(a[href])");
+				for(Element div: divs){ //não pega conexões sem datas ou que possuam mais de um ano no texto =(
+					
+					Elements links = div.select("a[href]");
+					for(Element link : links){
+						
+						String l = link.attr("abs:href"); 
+					    
+					    if( l.startsWith("http://lattes.cnpq.br") && !l.endsWith(lattesID) && l.substring(22).length() == 16) {
+					    	
+					    	String text = div.text();
+							Pattern ORIENT_REGEX = Pattern.compile("(\\d{4})");
+							Matcher matcher =  ORIENT_REGEX.matcher(text);
+							boolean isFirst=true; //flag apenas para a primeira inicializacao
+							int year=-1,lastYear=-1;
+							
+							while(matcher.find()){
+								
+								year = Integer.parseInt(matcher.group());
+								
+								if(isFirst){
+									lastYear=year;
+									isFirst=false;
+								}
+								
+								if(year!=lastYear){ //nao tem como saber qual o ano
+									year=-1;
+									break;
+								}
+								
+								lastYear=year;
+								
+							}//end while			
+							
+							if(year>0&&year<=maxYear){
+								addConnection( l.substring(22));
+							}
+					    	 
+					    }//end if links
+					
+					}// end for links
+						
+				}//end for divs
+				
+			}//end else year
+			
+			
+				
+				
 						
 		    
 	}
